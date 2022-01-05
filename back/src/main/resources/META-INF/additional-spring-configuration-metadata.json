@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "spring.redis.database.password",
+      "type": "java.lang.String",
+      "description": "Description for spring.redis.database.password."
+    },
+    {
+      "name": "qiniu.secretKey",
+      "type": "java.lang.String",
+      "description": "Description for qiniu.secretKey."
+    }
+  ] }
