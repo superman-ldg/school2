@@ -2,6 +2,7 @@ package com.ldg.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ldg.pojo.Goods;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface GoodsDao extends BaseMapper<Goods> {
-    @Update("update from goods set url=#{url} where id=#{id}")
-    boolean updateUrl(String url,Long id);
+    @Update("update  goods set url=#{url} where id=#{id}")
+    boolean updateUrl(@Param("url")String url, @Param("id")Long id);
 }

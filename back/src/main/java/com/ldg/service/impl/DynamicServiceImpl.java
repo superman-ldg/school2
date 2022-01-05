@@ -29,6 +29,10 @@ public class DynamicServiceImpl implements DynamicService {
     private RabbitTemplate rabbitTemplate;
 
     private  DynamicDao dynamicDao;
+
+    @Autowired
+    private DynamicRedis dynamicRedis;
+
     @Autowired
     private MessageUtil messageUtil;
 
@@ -73,16 +77,21 @@ public class DynamicServiceImpl implements DynamicService {
 
     /**更点赞*/
     @Override
-    public void updateFabulous(Long id,Long fabulous) {
-        dynamicDao.updateFabulous(id,fabulous);
+    public void updateFabulous(Long id) {
+
+        Long count = dynamicRedis.cacheDynamicZan(id);
+        if(count%20==0){
+            dynamicDao.updateFabulous(id,count);
+        }
     }
 
 
+    /**按标题模糊查询*/
     @Override
     public List<Dynamic> queryDynamicByTitle(String title) {
-        HashMap<String ,Object> map = new HashMap<>(16);
-        map.put("title",title);
-        return dynamicDao.selectByMap(map);
+        QueryWrapper<Dynamic> wrapper = new QueryWrapper<>();
+        wrapper.like("title",title);
+        return dynamicDao.selectList(wrapper);
     }
 
     @Override
@@ -110,7 +119,9 @@ public class DynamicServiceImpl implements DynamicService {
 
     @Override
     public List<Dynamic> queryDynamicByDate(Date date) {
-        return null;
+        QueryWrapper<Dynamic> wrapper=new QueryWrapper<>();
+        wrapper.likeRight("createtime",date);
+        return dynamicDao.selectList(wrapper);
     }
 
     @Override
@@ -120,11 +131,42 @@ public class DynamicServiceImpl implements DynamicService {
         return dynamicDao.selectByMap(map);
     }
 
+    /**
+     *         wrapper.eq()//等于
+     *         wrapper.ne()//不等于
+     *         wrapper.gt()//大于
+     *         wrapper.ge()//大于等于
+     *         wrapper.lt()//小于
+     *         wrapper.le()//小于等于
+     *         wrapper.between()//在什么之间
+     *         wrapper.notBetween()//不在之间
+     *         wrapper.select()//选择指定列
+     *         wrapper.allEq()//全等于
+     *         wrapper.like();wrapper.likeLeft();wrapper.likeRight();
+     *         wrapper.isNull();wrapper.isNotNull();wrapper.groupBy();wrapper.having();wrapper.orderBy();
+     *         wrapper.or();wrapper.and();wrapper.exists();
+     * @param pageNum
+     * @param size
+     * @return
+     */
     @Override
     public List<Dynamic> queryDynamicPage(int pageNum, int size) {
+        QueryWrapper<Dynamic> wrapper = new QueryWrapper<>();
+        wrapper.le("id",100);
         Page<Dynamic> page = new Page<>(pageNum,size);
         Page<Dynamic> dynamicPage = dynamicDao.selectPage(page, null);
         return dynamicPage.getRecords();
     }
+
+
+    public void updateZanToMysql(){
+
+    }
+
+
+
+
+
+
 
 }

@@ -95,7 +95,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public List<Goods> queryGoodsByName(String name) {
         QueryWrapper<Goods> wrapper = new QueryWrapper<>();
-        wrapper.eq("name",name);
+        wrapper.like("title",name);
         return goodsDao.selectList(wrapper);
     }
 
@@ -123,7 +123,9 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public List<Goods> queryGoodsByDate(Date date) {
-        return null;
+        QueryWrapper<Goods> wrapper=new QueryWrapper<>();
+        wrapper.like("title",date);
+        return goodsDao.selectList(wrapper);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.ldg.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ldg.pojo.User;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface UserDao extends BaseMapper<User> {
 
     @Update("update from user set url=#{url} where id=#{id}")
-    boolean updateUrl(String url,Long id);
+    boolean updateUrl(@Param("url")String url, @Param("id")Long id);
 }

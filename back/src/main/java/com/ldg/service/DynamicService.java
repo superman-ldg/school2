@@ -17,7 +17,7 @@ public interface DynamicService {
 
     boolean deleteDynamic(Long id);
 
-    void updateFabulous(Long id,Long fabulous);
+    void updateFabulous(Long id);
 
     List<Dynamic> queryDynamicByTitle(String dynamics);
 
