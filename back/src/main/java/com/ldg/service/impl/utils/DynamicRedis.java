@@ -1,4 +1,4 @@
-package com.ldg.utils;
+package com.ldg.service.impl.utils;
 
 import com.ldg.pojo.Dynamic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +31,14 @@ public class DynamicRedis {
     /**
      * 从缓存获取动态*/
     public List<Dynamic> getDynamics(){
-        return (List<Dynamic>) redisTemplate.opsForValue().get(DYNAMICS_CACHE_KEY);
+        Object o = redisTemplate.opsForValue().get(DYNAMICS_CACHE_KEY);
+        return (List<Dynamic>) o;
     }
 
     /**缓存多条动态
      */
     public <T> void cacheDynamics(List<T> data){
-        if(!StringUtils.isEmpty(data)){
-            redisTemplate.opsForValue().setIfPresent(DYNAMICS_CACHE_KEY,data,30L,TimeUnit.MINUTES);
-        }
+            redisTemplate.opsForValue().set(DYNAMICS_CACHE_KEY,data,60L,TimeUnit.MINUTES);
     }
     public void deleteDynamics(){
         redisTemplate.delete(DYNAMICS_CACHE_KEY);
@@ -58,7 +57,7 @@ public class DynamicRedis {
     public void dynamicNZan(Dynamic dynamic){
         if(!StringUtils.isEmpty(dynamic)){
             String key="DynamicZan:"+dynamic.getId();
-            redisTemplate.opsForValue().increment(key);
+            redisTemplate.opsForValue().increment(key,-1);
         }
     }
 
@@ -95,11 +94,12 @@ public class DynamicRedis {
     public Map<Object,Object> getAllMap(){
         Map<Object,Object> map = redisTemplate.opsForHash().entries(DYNAMICS_ZAN_KEY);
         return map;
-
     }
-    /**获取所有缓存在redis的点赞*/
-    public long getOneDynamicZan(Long id){
-       return (long)redisTemplate.opsForHash().get(DYNAMICS_ZAN_KEY, String.valueOf(id));
+    /**获取指定id动态的点赞数*/
+    public int getOneDynamicZan(Long id){
+        Object o = redisTemplate.opsForHash().get(DYNAMICS_ZAN_KEY, String.valueOf(id));
+        if(o==null) return 0;
+        return (int) o;
     }
 
     /**
@@ -114,25 +114,14 @@ public class DynamicRedis {
 //            return fabulous+1L;
 //        }
 
-        long count=1L;
+        Long count=1L;
+        //没人点赞，就设置
         if(StringUtils.isEmpty(redisForHash.get(DYNAMICS_ZAN_KEY, String.valueOf(id)))){
-            redisForHash.put(DYNAMICS_ZAN_KEY,String.valueOf(id),1L);
-        }else{
-            count= redisForHash.increment(DYNAMICS_ZAN_KEY, String.valueOf(id), 1L);
+            redisForHash.put(DYNAMICS_ZAN_KEY,String.valueOf(id),1);
+        }else{  //有人点赞，递增
+            count= redisForHash.increment(DYNAMICS_ZAN_KEY, String.valueOf(id), 1);
         }
         return count;
     }
-
-
-    public void test(){
-        for(int i=0;i<10;i++){
-            cacheDynamicZan((long) i);
-        }
-    }
-
-
-
-
-
 
 }

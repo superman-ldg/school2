@@ -64,11 +64,11 @@ public class RabbitmqQueueConfig {
        map.put("x-max-length-bytes",6000);
        map.put("x-dead-letter-exchange",DEAD_DYNAMIC_EXCHANGE);
        map.put("x-dead-letter-routing-key",DEAD_DYNAMIC_ROUTINGKEY);
-       return new Queue(ORDINARY_DYNAMIC_QUEUE,false,false,false,map);
+       return new Queue(ORDINARY_DYNAMIC_QUEUE,true,false,false,map);
     }
     @Bean("campus_ordinary_dynamic_exchange")
     public TopicExchange campus_ordinary_dynamic_exchange(){
-        return new TopicExchange(ORDINARY_DYNAMIC_EXCHANGE,false,false);
+        return new TopicExchange(ORDINARY_DYNAMIC_EXCHANGE,true,false);
     }
 
     @Bean("campus_dead_dynamic_queue")
@@ -77,11 +77,11 @@ public class RabbitmqQueueConfig {
         Map<String,Object> map=new HashMap<>(16);
         map.put("x-max-length",20000);
         map.put("x-max-length-bytes",6000);
-        return new Queue(DEAD_DYNAMIC_QUEUE,false,false,false,map);
+        return new Queue(DEAD_DYNAMIC_QUEUE,true,false,false,map);
     }
     @Bean("campus_dead_dynamic_exchange")
     public TopicExchange campus_dead_dynamic_exchange(){
-        return new TopicExchange(DEAD_DYNAMIC_EXCHANGE,false,false);
+        return new TopicExchange(DEAD_DYNAMIC_EXCHANGE,true,false);
     }
 
 
@@ -94,23 +94,23 @@ public class RabbitmqQueueConfig {
         map.put("x-message-ttl",5000);
         map.put("x-dead-letter-exchange",DEAD_GOODS_EXCHANGE);
         map.put("x-dead-letter-routing-key",DEAD_GOODS_ROUTINGKEY);
-        return new Queue( ORDINARY_GOODS_QUEUE,false,false,false,map);
+        return new Queue( ORDINARY_GOODS_QUEUE,true,false,false,map);
     }
 //
     @Bean("campus_ordinary_goods_exchange")
     public TopicExchange campus_ordinary_goods_exchange(){
-        return new TopicExchange(ORDINARY_GOODS_EXCHANGE,false,false);
+        return new TopicExchange(ORDINARY_GOODS_EXCHANGE,true,false);
     }
     @Bean("campus_dead_goods_queue")
     public Queue campus_dead_goods_queue()
     {
         Map<String,Object> map=new HashMap<>(16);
         map.put("x-max-length",20000);
-        return new Queue(DEAD_GOODS_QUEUE,false,false,false,map);
+        return new Queue(DEAD_GOODS_QUEUE,true,false,false,map);
     }
     @Bean("campus_dead_goods_exchange")
     public TopicExchange campus_dead_goods_exchange(){
-        return new TopicExchange(DEAD_GOODS_EXCHANGE,false,false);
+        return new TopicExchange(DEAD_GOODS_EXCHANGE,true,false);
     }
 
     @Bean

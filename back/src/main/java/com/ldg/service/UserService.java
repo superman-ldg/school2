@@ -15,8 +15,8 @@ public interface UserService {
     User queryByIdCard(Long id);
     List<User> queryAll();
     int insert(User user);
-    User queryUserById_CardNndPassword(int id_card,String paswword);
     int updateUser(User user);
      UserInfo queryUserInfo(Long Id);
      boolean updateUrl(Long id,String url);
+     User loadUser(Long id,String password);
 }

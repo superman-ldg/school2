@@ -8,11 +8,13 @@ import com.ldg.dao.GoodsDao;
 import com.ldg.dao.UserDao;
 import com.ldg.pojo.Goods;
 import com.ldg.service.GoodsService;
-import com.ldg.utils.GoodRedis;
-import com.ldg.utils.MessageUtil;
+import com.ldg.service.impl.utils.GoodRedis;
+import com.ldg.service.impl.utils.MessageUtil;
+import com.ldg.service.impl.utils.UserRedis;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -24,6 +26,7 @@ import java.util.Map;
 /**
  * @author Administrator
  */
+@Transactional
 @Service
 public class GoodsServiceImpl implements GoodsService {
 
@@ -32,7 +35,10 @@ public class GoodsServiceImpl implements GoodsService {
     private GoodsDao goodsDao;
 
     @Autowired
-    private GoodRedis redisUtil;
+    private UserRedis userRedis;
+
+    @Autowired
+    private GoodRedis goodsRedis;
 
     @Autowired
     private MyConfirmCallback myConfirmCallback;
@@ -62,30 +68,31 @@ public class GoodsServiceImpl implements GoodsService {
      */
     @Override
     public boolean insert(Goods goods) {
-//        System.out.println("-----------goodService--------");
-//        boolean send = messageUtil.send(goods);
-        redisUtil.deleteGoods();
-        int insert = goodsDao.insert(goods);
+        goodsRedis.deleteGoods();
+        userRedis.deleteUserInfo(goods.getUid());
+        int id = goodsDao.insert(goods);
         try {
             Thread.sleep(100);
-            redisUtil.deleteGoods();
+            goodsRedis.deleteGoods();
+            userRedis.deleteUserInfo(goods.getUid());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return insert>0;
-        //return send;
+        return id>0;
     }
 
     /**
      * 缓存一致性问题
      */
     @Override
-    public boolean delete(Long gId) {
-        redisUtil.deleteGoods();
+    public boolean delete(Long gId,Long uid) {
+        goodsRedis.deleteGoods();
+        userRedis.deleteUserInfo(uid);
         int i = goodsDao.deleteById(gId);
         try {
             Thread.sleep(100);
-            redisUtil.deleteGoods();
+            goodsRedis.deleteGoods();
+            userRedis.deleteUserInfo(gId);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -93,9 +100,17 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public List<Goods> queryGoodsByName(String name) {
+    public boolean uploadPicture(String url, Long id) {
+        System.out.println(url+"----------"+id);
+        return goodsDao.updatePictureUrl(url,id);
+    }
+
+
+    @Override
+    public List<Goods> queryGoodsByName(String name,int type) {
         QueryWrapper<Goods> wrapper = new QueryWrapper<>();
         wrapper.like("title",name);
+        wrapper.eq("type",type);
         return goodsDao.selectList(wrapper);
     }
 
@@ -109,8 +124,17 @@ public class GoodsServiceImpl implements GoodsService {
     /**缓存获取不到数据则去数据库查*/
     @Override
     public List<Goods> queryGoodsAll() {
-        List<Goods> goods = redisUtil.getGoods();
-        return StringUtils.isEmpty(goods)?goodsDao.selectList(null):goods;
+        List<Goods> goods = goodsRedis.getGoods();
+        System.out.println(goods);
+        if(StringUtils.isEmpty(goods)){
+            QueryWrapper<Goods> wrapper = new QueryWrapper<>();
+            wrapper.orderByDesc("id");
+            Page<Goods> page = new Page<>(1,100);
+            Page<Goods> dynamicPage = goodsDao.selectPage(page, wrapper);
+            goods=dynamicPage.getRecords();
+            goodsRedis.cacheGoods(goods);
+        }
+        return goods;
     }
 
     @Override
@@ -136,9 +160,11 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public List<Goods> queryGoodsPage(int pageNum, int size) {
-        Page<Goods> page = new Page<>(pageNum,size);
-        Page<Goods> goodsPage = goodsDao.selectPage(page,null);
+    public List<Goods> queryGoodsPage(int pageNum) {
+        QueryWrapper<Goods> wrapper = new QueryWrapper<>();
+        wrapper.orderByDesc("id");
+        Page<Goods> page = new Page<>(pageNum,50);
+        Page<Goods> goodsPage = goodsDao.selectPage(page,wrapper);
         return goodsPage.getRecords();
     }
 

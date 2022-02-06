@@ -2,11 +2,13 @@ package com.ldg.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ldg.controller.DynamicRestController;
 import com.ldg.dao.DynamicDao;
 import com.ldg.pojo.Dynamic;
 import com.ldg.service.DynamicService;
-import com.ldg.utils.DynamicRedis;
-import com.ldg.utils.MessageUtil;
+import com.ldg.service.impl.utils.DynamicRedis;
+import com.ldg.service.impl.utils.MessageUtil;
+import com.ldg.service.impl.utils.UserRedis;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,13 +26,14 @@ import java.util.Map;
 @Service
 public class DynamicServiceImpl implements DynamicService {
 
-    private DynamicRedis cacheUtil;
-
     private RabbitTemplate rabbitTemplate;
 
     private  DynamicDao dynamicDao;
 
     @Autowired
+    private UserRedis userRedis;
+
+   // @Autowired
     private DynamicRedis dynamicRedis;
 
     @Autowired
@@ -40,7 +43,7 @@ public class DynamicServiceImpl implements DynamicService {
     DynamicServiceImpl(DynamicDao dynamicDao,DynamicRedis redisUtil,RabbitTemplate rabbitTemplate){
         this.dynamicDao=dynamicDao;
         this.rabbitTemplate=rabbitTemplate;
-        this.cacheUtil=redisUtil;
+        this.dynamicRedis=redisUtil;
     }
 
     /**
@@ -48,11 +51,13 @@ public class DynamicServiceImpl implements DynamicService {
      */
     @Override
     public boolean insertDynamic(Dynamic dynamic) {
-        cacheUtil.deleteDynamics();
+        dynamicRedis.deleteDynamics();
+        userRedis.deleteUserInfo(dynamic.getUid());
         int insert = dynamicDao.insert(dynamic);
         try {
             Thread.sleep(100);
-            cacheUtil.deleteDynamics();
+            dynamicRedis.deleteDynamics();
+            userRedis.deleteUserInfo(dynamic.getUid());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -64,11 +69,11 @@ public class DynamicServiceImpl implements DynamicService {
      */
     @Override
     public boolean deleteDynamic(Long id) {
-        cacheUtil.deleteDynamics();
+        dynamicRedis.deleteDynamics();
         int i = dynamicDao.deleteById(id);
         try {
             Thread.sleep(100);
-            cacheUtil.deleteDynamics();
+            dynamicRedis.deleteDynamics();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -78,11 +83,15 @@ public class DynamicServiceImpl implements DynamicService {
     /**更点赞*/
     @Override
     public void updateFabulous(Long id) {
-
         Long count = dynamicRedis.cacheDynamicZan(id);
-        if(count%20==0){
+        if(count%30==0){
             dynamicDao.updateFabulous(id,count);
         }
+    }
+
+    @Override
+    public boolean uploadPicture(String url,Long id) {
+        return dynamicDao.updatePictureUrl(url, id);
     }
 
 
@@ -104,8 +113,16 @@ public class DynamicServiceImpl implements DynamicService {
     /**缓存获取不到数据则去数据库查*/
     @Override
     public List<Dynamic> queryDynamicAll() {
-        List<Dynamic> dynamics = cacheUtil.getDynamics();
-        return StringUtils.isEmpty(dynamics)?dynamicDao.selectList(null):dynamics;
+        List<Dynamic> dynamics = dynamicRedis.getDynamics();
+        if(StringUtils.isEmpty(dynamics)){
+            QueryWrapper<Dynamic> wrapper = new QueryWrapper<>();
+            wrapper.orderByDesc("id");
+            Page<Dynamic> page = new Page<>(1,100);
+            Page<Dynamic> dynamicPage = dynamicDao.selectPage(page, wrapper);
+            dynamics=dynamicPage.getRecords();
+            dynamicRedis.cacheDynamics(dynamics);
+        }
+        return dynamics;
     }
 
     @Override
@@ -146,15 +163,14 @@ public class DynamicServiceImpl implements DynamicService {
      *         wrapper.isNull();wrapper.isNotNull();wrapper.groupBy();wrapper.having();wrapper.orderBy();
      *         wrapper.or();wrapper.and();wrapper.exists();
      * @param pageNum
-     * @param size
      * @return
      */
     @Override
-    public List<Dynamic> queryDynamicPage(int pageNum, int size) {
+    public List<Dynamic> queryDynamicPage(int pageNum) {
         QueryWrapper<Dynamic> wrapper = new QueryWrapper<>();
-        wrapper.le("id",100);
-        Page<Dynamic> page = new Page<>(pageNum,size);
-        Page<Dynamic> dynamicPage = dynamicDao.selectPage(page, null);
+        wrapper.orderByDesc("id");
+        Page<Dynamic> page = new Page<>(pageNum,100);
+        Page<Dynamic> dynamicPage = dynamicDao.selectPage(page, wrapper);
         return dynamicPage.getRecords();
     }
 

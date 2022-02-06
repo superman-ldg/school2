@@ -7,7 +7,8 @@ import com.ldg.pojo.Goods;
 import com.ldg.pojo.User;
 import com.ldg.pojo.UserInfo;
 import com.ldg.service.UserService;
-import com.ldg.utils.MessageUtil;
+import com.ldg.service.impl.utils.MessageUtil;
+import com.ldg.service.impl.utils.UserRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class UserServiceImpl implements UserService {
     private MessageUtil messageUtil;
 
     @Autowired
+    private UserRedis userRedis;
+
+    @Autowired
     UserServiceImpl(UserDao userDao, DynamicServiceImpl dynamicService, GoodsServiceImpl goodsService, MessageUtil messageUtil){
         this.userDao=userDao;
         this.dynamicService=dynamicService;
@@ -37,10 +41,12 @@ public class UserServiceImpl implements UserService {
         this.messageUtil=messageUtil;
     }
 
+
+
     @Override
     public User queryByIdCard(Long id) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("id_card",id);
+        wrapper.eq("idCard",id);
         return userDao.selectOne(wrapper);
     }
 
@@ -59,12 +65,6 @@ public class UserServiceImpl implements UserService {
         return userDao.insert(user);
     }
 
-    @Override
-    public User queryUserById_CardNndPassword(int id_card,String password) {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("id_card",id_card).eq("password",password);
-        return userDao.selectOne(wrapper);
-    }
 
     @Override
     public int updateUser(User user) {
@@ -87,15 +87,16 @@ public class UserServiceImpl implements UserService {
         try {
             CompletableFuture<List<Dynamic>> future1 = CompletableFuture.supplyAsync(() -> dynamicService.queryUserDynamic(uid));
             CompletableFuture<List<Goods>> future2 = CompletableFuture.supplyAsync(() -> goodsService.queryUserGoods(uid));
-            CompletableFuture<User> future3 = CompletableFuture.supplyAsync(() -> userDao.selectById(uid));
+            CompletableFuture<User> future3 = CompletableFuture.supplyAsync(() -> userDao.selectOneUser(uid));
             UserInfo<Dynamic, Goods> userInfo = new UserInfo<>();
             List<Dynamic> dynamics = future1.get();
             List<Goods> goods1 = future2.get();
             User user = future3.get();
-            user.setEmail("").setPhone("").setPassword("").setId_card(0L);
+            user.setEmail("").setPhone("").setPassword("").setIdCard(uid);
             userInfo.setUser(user);
             userInfo.setDynamicData(dynamics);
             userInfo.setGoodData(goods1);
+            userRedis.cacheUserInfo(userInfo);
             return userInfo;
         }catch (Exception e){
             e.printStackTrace();
@@ -104,4 +105,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
+    public User loadUser(Long idCard,String password){
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("idCard",idCard).eq("password",password);
+        User user = userDao.selectOne(wrapper);
+        return  user;
+    }
 }

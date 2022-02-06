@@ -2,16 +2,24 @@ package com.ldg.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ldg.pojo.User;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author Administrator
  */
-@Repository
+@Mapper
 public interface UserDao extends BaseMapper<User> {
 
-    @Update("update from user set url=#{url} where id=#{id}")
+    @Update("update user set url=#{url} where idCard=#{id}")
     boolean updateUrl(@Param("url")String url, @Param("id")Long id);
+
+    @Select("select * from user where idCard=#{id} and password=#{password}")
+    User login(@Param("id") Long id,@Param("password") String password);
+
+    @Select("select * from user where idCard=#{id}")
+    User selectOneUser(@Param("id") Long id);
+
 }

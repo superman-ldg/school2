@@ -1,4 +1,4 @@
-package com.ldg.utils;
+package com.ldg.service.impl.utils;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;

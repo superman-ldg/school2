@@ -1,6 +1,8 @@
 package com.ldg.config.rabbitmq;
 
-import com.ldg.utils.MQRedis;
+import com.ldg.listener.EventMq;
+import com.ldg.listener.PublishMq;
+import com.ldg.service.impl.utils.MQRedis;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +14,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyConfirmCallback implements RabbitTemplate.ConfirmCallback {
 
+    @Autowired
+    private MQRedis mqRedis;
 
-    private MQRedis redisUtil;
+    @Autowired
+    private PublishMq publishMq;
 
     @Autowired
     public MyConfirmCallback(MQRedis redisUtil){
-        this.redisUtil=redisUtil;
+        this.mqRedis=redisUtil;
     }
 
     /**发送消息成功，从redis删除消息缓存*/
     @Override
     public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+        String id = correlationData.getId();
         if(ack){
-            redisUtil.deleteMessageToRedis(correlationData.getId());
+            mqRedis.deleteMessageToRedis(correlationData.getId());
             System.out.println("生成者端的id为："+correlationData.getId());
         }else{
-            System.out.println("发送消息失败了，消失没有能到达交换机");
+            publishMq.publishEvent(new EventMq(id,null));
         }
     }
 }

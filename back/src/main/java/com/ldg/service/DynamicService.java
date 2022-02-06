@@ -19,6 +19,8 @@ public interface DynamicService {
 
     void updateFabulous(Long id);
 
+    boolean uploadPicture(String url,Long id);
+
     List<Dynamic> queryDynamicByTitle(String dynamics);
 
     List<Dynamic> queryDynamicByType(int type);
@@ -31,6 +33,6 @@ public interface DynamicService {
 
     List<Dynamic> queryUserDynamic(Long useId);
 
-    List<Dynamic> queryDynamicPage(int page,int size);
+    List<Dynamic> queryDynamicPage(int page);
 
 }

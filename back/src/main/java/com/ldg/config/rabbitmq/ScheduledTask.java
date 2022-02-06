@@ -1,6 +1,6 @@
 package com.ldg.config.rabbitmq;
 
-import com.ldg.utils.MessageUtil;
+import com.ldg.service.impl.utils.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;

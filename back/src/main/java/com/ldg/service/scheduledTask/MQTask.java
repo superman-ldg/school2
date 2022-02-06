@@ -1,6 +1,6 @@
 package com.ldg.service.scheduledTask;
 
-import com.ldg.utils.MessageUtil;
+import com.ldg.service.impl.utils.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.util.Date;
 
 /**
+ * 不使用该类
  * @author Administrator
  */
 @Configuration

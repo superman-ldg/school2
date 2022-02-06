@@ -2,6 +2,7 @@ package com.ldg.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ldg.pojo.Dynamic;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
 /**
  * @author Administrator
  */
-@Repository
+@Mapper
 public interface DynamicDao extends BaseMapper<Dynamic> {
 
     @Update("update dynamic set fabulous=#{fabulous} where id=#{id}")
@@ -22,6 +23,6 @@ public interface DynamicDao extends BaseMapper<Dynamic> {
 
 
     @Update("update dynamic set url=#{url} where id=#{id}")
-    boolean updateUrl(@Param("url") String url,@Param("id") Long id);
+    boolean updatePictureUrl(@Param("url") String url,@Param("id") Long id);
 
 }

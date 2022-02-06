@@ -11,6 +11,6 @@ import org.springframework.stereotype.Component;
 public class MyReturnCallback implements RabbitTemplate.ReturnCallback {
     @Override
     public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-        System.out.println("消息没有能够到达MQ");
+        System.out.println("消息没有能够到达MQ的队列");
     }
 }

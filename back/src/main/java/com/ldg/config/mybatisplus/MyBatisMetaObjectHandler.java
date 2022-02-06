@@ -1,7 +1,9 @@
 package com.ldg.config.mybatisplus;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.ldg.service.impl.utils.DateUtil;
 import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -12,10 +14,13 @@ import java.util.Date;
 @Component
 public class MyBatisMetaObjectHandler implements MetaObjectHandler {
 
+    @Autowired
+    private DateUtil dateUtil;
+
     @Override
     public void insertFill(MetaObject metaObject) {
-      this.setFieldValByName("createtime",new Date(),metaObject);
-
+        String date=DateUtil.format(new Date());
+      this.setFieldValByName("createtime",date,metaObject);
     }
 
     @Override

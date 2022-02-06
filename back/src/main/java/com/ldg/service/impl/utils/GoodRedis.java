@@ -1,4 +1,4 @@
-package com.ldg.utils;
+package com.ldg.service.impl.utils;
 
 import com.ldg.pojo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +33,7 @@ public class GoodRedis {
     /**缓存多条物品
      */
     public <T> void cacheGoods(List<T> data){
-        if(!StringUtils.isEmpty(data)){
-            redisTemplate.opsForValue().setIfPresent(GOODS_CACHE_KEY,data,30L, TimeUnit.MINUTES);
-        }
+            redisTemplate.opsForValue().set(GOODS_CACHE_KEY,data,60L, TimeUnit.MINUTES);
     }
     public void deleteGoods(){
         redisTemplate.delete(GOODS_CACHE_KEY);
@@ -46,7 +44,7 @@ public class GoodRedis {
     public void cacheUserGood(Goods goods){
         if(!StringUtils.isEmpty(goods)){
             String key="userGoods:"+goods.getId();
-            redisTemplate.opsForValue().setIfPresent(key,goods,60L,TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(key,goods,60L,TimeUnit.MINUTES);
         }
     }
 

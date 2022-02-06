@@ -1,7 +1,7 @@
 package com.ldg.service.scheduledTask;
 
 import com.ldg.service.impl.DynamicServiceImpl;
-import com.ldg.utils.DynamicRedis;
+import com.ldg.service.impl.utils.DynamicRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -9,11 +9,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
 /**
+ * 不使用该类
  * @author Administrator
  */
 @Configuration

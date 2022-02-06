@@ -1,6 +1,7 @@
 package com.ldg.config.mybatisplus;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.toolkit.Sequence;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
@@ -23,4 +24,8 @@ public class MyBatisConfig {
         return interceptor;
    }
 
+    @Bean
+    public Sequence sequence(){
+        return new Sequence();
+    }
 }

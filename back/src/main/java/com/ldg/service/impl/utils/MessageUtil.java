@@ -1,4 +1,4 @@
-package com.ldg.utils;
+package com.ldg.service.impl.utils;
 
 import com.baomidou.mybatisplus.core.toolkit.Sequence;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,9 +19,11 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class MessageUtil {
 
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    private MQRedis redisUtil;
+    @Autowired
+    private MQRedis mqRedis;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -32,13 +34,14 @@ public class MessageUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final  Sequence  sequence=new Sequence();
-
     @Autowired
-    MessageUtil(RabbitTemplate rabbitTemplate, MQRedis redisUtil){
-        this.rabbitTemplate=rabbitTemplate;
-        this.redisUtil=redisUtil;
-    }
+    private Sequence  sequence;
+
+//    @Autowired
+//    MessageUtil(RabbitTemplate rabbitTemplate, MQRedis redisUtil){
+//        this.rabbitTemplate=rabbitTemplate;
+//        this.redisUtil=redisUtil;
+//    }
 
     /**
      * 应该用分布式事务解决 redisUtil和rabbitTemplate中任何一个失败的问题。
@@ -61,7 +64,8 @@ public class MessageUtil {
         /**用雪花算法生成消息的唯一标识*/
         long l = sequence.nextId();
         String mId= String.valueOf(l);
-        redisUtil.cacheMessageToRedis(mId,message);
+        /**将消息缓存到redis，确保一定发送成功*/
+        mqRedis.cacheMessageToRedis(mId,message);
         try {
             byte[] bytes = objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
             rabbitTemplate.convertAndSend(exchange,routingKey,bytes,properties->{

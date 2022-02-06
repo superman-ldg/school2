@@ -15,13 +15,14 @@ import java.util.List;
 public interface GoodsService {
 
     boolean insert(Goods goods);
-    boolean delete(Long gId);
-    List<Goods> queryGoodsByName(String name);
+    boolean delete(Long gId,Long uid);
+    boolean uploadPicture(String url,Long id);
+    List<Goods> queryGoodsByName(String name,int type);
     List<Goods> queryGoodsByType(int type);
     List<Goods> queryGoodsAll();
     List<Goods> queryGoodsByNameAndType(String name,int type);
     List<Goods> queryGoodsByDate(Date date);
     List<Goods> queryUserGoods(Long useId);
-    List<Goods> queryGoodsPage(int pageNum,int size);
+    List<Goods> queryGoodsPage(int pageNum);
 
 }

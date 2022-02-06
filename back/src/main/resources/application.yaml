@@ -5,13 +5,26 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://47.106.132.130:3306/ldg_compus?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
 
+  logging:
+    file:  #日志文件名称
+      name: log/springSchool.log
+    level:
+      root: info #日志级别 root表示所有包，也可以单独配置具体包 fatal error warn info debug trace off
+
   mail:
-    username:
-    password:
+    host: smtp.qq.com #发送邮件服务器
+    username: 1126458841@qq.com
+    password: xxmtrivyiacwjgcd
+    properties.mail.smtp.port: 465 #端口号465或587
+    from: ldgloves@qq.com
+    properties.mail.smtp.starttls.enable: true
+    properties.mail.smtp.starttls.required: true
+    properties.mail.smtp.ssl.enable: true
+    default-encoding: utf-8
 
   redis:
     host: 47.106.132.130
@@ -53,6 +66,6 @@ mybatis-plus:
 qiniu:
   accessKey: ZVwt4Sw_inv3AYkG7p0uXCilbCc2TJn4dWzjXRVv
   secretKey: m5gCEjfkKXVvidkSxK-nky6RYr69z0JNWspG48IW
-  bucket: ldgschool2
+  bucket: ldgschool3
   domain: r48kkavp6.hn-bkt.clouddn.com
 

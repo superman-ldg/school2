@@ -1,10 +1,18 @@
 package com.ldg.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ldg.config.rabbitmq.RabbitmqQueueConfig;
+import com.ldg.pojo.Dynamic;
+import com.ldg.service.impl.utils.MQRedis;
 import lombok.SneakyThrows;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Administrator
@@ -12,18 +20,38 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class ListenerMq implements ApplicationListener<EventMq> {
 
+    @Autowired
+    private MQRedis mqRedis;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @SneakyThrows
     @Override
     public void onApplicationEvent(EventMq eventMq) {
-        String type=eventMq.getType();
-        HttpServletResponse response=eventMq.getResponse();
-        response.setContentType("text/html;charset=UTF-8");
-        if("成功".equals(type)){
-            response.setStatus(200);
-            response.getWriter().write("发送成功，正在等待审核！");
+        String msgId=eventMq.getMsgId();
+        Object message = mqRedis.getMessageFromRedis(msgId);
+        String exchange;
+        String routingKey;
+        if(message instanceof Dynamic){
+            exchange= RabbitmqQueueConfig.ORDINARY_DYNAMIC_EXCHANGE;
+            routingKey=RabbitmqQueueConfig.ORDINARY_DYNAMIC_ROUTINGKEY;
         }else{
-            response.setStatus(500);
-            response.getWriter().write("服务器内部异常,请稍后重试！");
+            exchange=RabbitmqQueueConfig.ORDINARY_GOODS_EXCHANGE;
+            routingKey=RabbitmqQueueConfig.ORDINARY_GOODS_ROUTINGKEY;
+        }
+        try {
+            byte[] bytes = objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
+            rabbitTemplate.convertAndSend(exchange,routingKey,bytes,properties->{
+                properties.getMessageProperties().setHeader("messageId",msgId);
+                properties.getMessageProperties().setMessageId(msgId);
+                return properties;
+            },new CorrelationData(msgId));
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }

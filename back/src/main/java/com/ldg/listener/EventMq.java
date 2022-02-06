@@ -12,20 +12,15 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class EventMq extends ApplicationEvent {
 
-    String type;
-    HttpServletResponse response;
+    String msgId;
 
-    public EventMq(String type, Object source, HttpServletResponse response) {
+    public EventMq(String msgId,Object source) {
         super(source);
-        this.type=type;
-        this.response=response;
-    }
-    public  HttpServletResponse getResponse(){
-        return response;
+        this.msgId=msgId;
     }
 
-    public String getType(){
-        return type;
+    public String getMsgId(){
+        return msgId;
     }
 
 

@@ -1,5 +1,7 @@
 package com.ldg.pojo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ldg.pojo.base.BaseDynamic;
@@ -20,16 +22,18 @@ import java.util.Date;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class Dynamic extends BaseDynamic implements Serializable {
-    @TableId
+    @TableId(type = IdType.INPUT)
+    @JSONField(serializeUsing= ToStringSerializer.class)
     private Long id;
+    @JSONField(serializeUsing= ToStringSerializer.class)
     private Long uid;
     private String title;
     private String context;
     @TableField(fill = FieldFill.INSERT)
-    private Date createtime;
+    private String createtime;
     @TableLogic
-    private int deleted;
+    private Integer deleted;
     private String url;
-    private int fabulous;
-    private int type;
+    private Integer fabulous;
+    private Integer type;
 }

@@ -35,7 +35,7 @@ public class QiNiuConfig {
 
     @PostConstruct
     public void init(){
-        this.conf=new Configuration(Region.huanan());
+        this.conf=new Configuration(Region.beimei());
         this.auth=Auth.create(accessKey,secretKey);
     }
 

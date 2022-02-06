@@ -25,11 +25,22 @@ public class UserController {
     @Autowired
     private PictureService pictureService;
 
-    @PostMapping("/add")
+    @PostMapping("add")
     public boolean allUser(@RequestBody User user){
         int insert = userService.insert(user);
         return insert>0;
     }
+
+    @PostMapping("login")
+    public User login(@RequestBody User userInfo){
+        User user = userService.loadUser(userInfo.getIdCard(), userInfo.getPassword());
+        return user;
+    }
+    @GetMapping("all")
+    public List<User> get(){
+        return userService.queryAll();
+    }
+
 
     /**
      *  要修改
@@ -38,10 +49,10 @@ public class UserController {
     public boolean updatePicture(MultipartFile file,@PathVariable("id") Long id) throws IOException {
         String originalFilename = file.getOriginalFilename();
         InputStream inputStream = file.getInputStream();
-        String url = pictureService.getFileName(originalFilename);
-        userService.updateUrl(id,url);
-        return pictureService.uploadFile(inputStream, originalFilename);
+        assert originalFilename != null;
+        String url = pictureService.getFileName(originalFilename,"user",id);
+        String url2=PictureService.BASEURL+url;
+        userService.updateUrl(id,url2);
+        return pictureService.uploadFile(inputStream, url);
     }
-
-
 }

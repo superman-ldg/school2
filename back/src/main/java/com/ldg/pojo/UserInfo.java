@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 public class UserInfo<D,G> implements Serializable {
     User user;
-    int dynamicCount;
-    int goodCount;
+    Integer dynamicCount;
+    Integer goodCount;
     List<D> dynamicData;
     List<G> goodData;
 }

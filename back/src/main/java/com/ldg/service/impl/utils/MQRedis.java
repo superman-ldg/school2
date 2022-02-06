@@ -1,4 +1,4 @@
-package com.ldg.utils;
+package com.ldg.service.impl.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,8 +42,8 @@ public class MQRedis {
     /**
      *消费者消费消息后,把消息组键放到redis防止重复消费
      */
-    public void cacheMessageIdToRedis(String mId,Object mId2){
-        redisTemplate.opsForValue().set(mId,mId2,30L,TimeUnit.MINUTES);
+    public void cacheMessageIdToRedis(String mId,Object object){
+        redisTemplate.opsForValue().set(mId,object,60L,TimeUnit.MINUTES);
     }
     /**
      * 消息幂等性校验，防止重复消费
@@ -52,6 +52,18 @@ public class MQRedis {
         Object o = redisTemplate.opsForValue().get(mId);
         return StringUtils.isEmpty(o);
     }
+
+    /***
+     * 通过消息ID从缓存获取消息
+     * @param mId
+     * @return
+     */
+    public Object getMessageFromRedis(String mId){
+        Object o = redisTemplate.opsForValue().get(mId);
+        return o;
+    }
+
+
     /**
      *设置key的过期时间
      */
@@ -66,6 +78,8 @@ public class MQRedis {
      *删除指定的key
      */
     public  boolean deleteKey(String key){
+//        redisTemplate.delete(key);
+//        return  true;
         if(StringUtils.isEmpty(key)){
             return false;
         }else{
