@@ -66,6 +66,6 @@ mybatis-plus:
 qiniu:
   accessKey: ZVwt4Sw_inv3AYkG7p0uXCilbCc2TJn4dWzjXRVv
   secretKey: m5gCEjfkKXVvidkSxK-nky6RYr69z0JNWspG48IW
-  bucket: ldgschool3
-  domain: r48kkavp6.hn-bkt.clouddn.com
+  bucket: ldgschool4
+  domain: r7hpkof1o.bkt.gdipper.com
 

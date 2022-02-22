@@ -70,6 +70,7 @@ public class MqConsumer {
 
         String s = new String(message.getBody(), StandardCharsets.UTF_8);
         Goods good = objectMapper.readValue(s, Goods.class);
+        System.out.println("goods:"+good);
         String messageId = message.getMessageProperties().getMessageId();
         try{
             /**

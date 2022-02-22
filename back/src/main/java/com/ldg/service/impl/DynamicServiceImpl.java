@@ -114,7 +114,7 @@ public class DynamicServiceImpl implements DynamicService {
     @Override
     public List<Dynamic> queryDynamicAll() {
         List<Dynamic> dynamics = dynamicRedis.getDynamics();
-        if(StringUtils.isEmpty(dynamics)){
+        if(StringUtils.isEmpty(dynamics)||dynamics.size()<1){
             QueryWrapper<Dynamic> wrapper = new QueryWrapper<>();
             wrapper.orderByDesc("id");
             Page<Dynamic> page = new Page<>(1,100);

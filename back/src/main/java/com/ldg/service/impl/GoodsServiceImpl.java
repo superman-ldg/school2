@@ -125,8 +125,8 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public List<Goods> queryGoodsAll() {
         List<Goods> goods = goodsRedis.getGoods();
-        System.out.println(goods);
-        if(StringUtils.isEmpty(goods)){
+        System.out.println("goods:"+goods);
+        if(StringUtils.isEmpty(goods)||goods.size()<1){
             QueryWrapper<Goods> wrapper = new QueryWrapper<>();
             wrapper.orderByDesc("id");
             Page<Goods> page = new Page<>(1,100);

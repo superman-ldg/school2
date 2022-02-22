@@ -14,7 +14,7 @@ import java.util.UUID;
 public class PictureService {
 
     private QiNiuConfig qiNiuConfig;
-    public static String BASEURL="http://r5yh8ltea.bkt.gdipper.com/";
+    public static String BASEURL="http://r7hpkof1o.bkt.gdipper.com/";
 
     @Autowired
     PictureService(QiNiuConfig qiNiuConfig){

@@ -22,10 +22,22 @@ public class DynamicRedis {
     private RedisTemplate<String,Object> redisTemplate;
     private HashOperations<String,String,Object>  redisForHash;
 
+    /** 事务基本操作
+     *         redisTemplate.multi();
+     *         redisTemplate.watch("");  WATCH 命令是一个乐观锁，可以为 Redis 事务提供 check-and-set （CAS）行为。 可以监控一个或多个键，
+     *         一旦其中有一个键被修改（或删除），之后的事务就不会执行，监 控一直持续到EXEC命令。
+     *          redisTemplate.unwatch();
+     *         redisTemplate.exec();
+     *         redisTemplate.discard();  通过调用DISCARD，客户端可以清空事务队列，并放弃执行事务， 并且客户端会从事务状态中退出
+     * @param redisTemplate
+     * @param redisForHash
+     */
+
     @Autowired
     DynamicRedis(RedisTemplate<String, Object> redisTemplate,HashOperations<String,String,Object> redisForHash){
         this.redisTemplate=redisTemplate;
         this.redisForHash=redisForHash;
+
     }
 
     /**
